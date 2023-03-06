@@ -1,2 +1,2 @@
 # astro_ml
-Uncovering Patterns 
+Uncovering Patterns in the Stars with Machine Learning
