@@ -18,6 +18,17 @@ def load_data():
         urls = json.load(file)
     return urls
 
+def get_occupation(soup):
+    strong = soup.find('strong', string='Occupation')
+    occ = ''
+    
+    if strong:
+        div = strong.parent.find_next_sibling("div")
+        occ = div.get_text().replace('\n', '')
+        
+    return occ
+        
+
 def get_birth_date_and_time(soup):
     tags = soup.find_all('div', {'class': 'fl'})
     day = ''
@@ -89,17 +100,26 @@ def get_houses(soup):
 def get_planet_details(soup, planet):
     div = soup.find('span', string=planet.title())
     p = {}
+    # print(planet)
+    # if planet == 'moon':
+    #     return p
     
     if (div):
         div = div.parent
+        
         next_divs = div.find_next_siblings('div', limit=4)
         
         for idx, d in enumerate(next_divs):
             if idx == 0:
                 # its sign
-                sign = d.find('img')
+                sign = d.find_all('img')
+                
                 if sign:
-                    p["sign"] = sign.get('alt')
+                    img = sign[0]
+                
+                    if planet == 'moon':
+                        img = sign[1]
+                    p["sign"] = img.get('alt')
                 else:
                     p["sign"] = None
                     
@@ -108,6 +128,10 @@ def get_planet_details(soup, planet):
                 
                 p["pos_degrees"] = int(spans[0].get_text())
                 p["pos_minutes"] = int(spans[1].get_text().replace('’', ''))
+                
+                if planet == 'moon':
+                    p["pos_degrees"] = int(spans[2].get_text())
+                    p["pos_minutes"] = int(spans[3].get_text().replace('’', ''))
                 
             if idx == 2:
                 p["house"] = d.get_text()
@@ -128,7 +152,7 @@ def get_planets(soup):
 
 def get_death(soup):
     div = soup.find('strong', string='Death')
-    death = {}
+    death = {"date": None, "cause": None}
     
     if (div):
         div = div.parent
@@ -173,12 +197,22 @@ def get_personal_info(url):
             
     # death date and cause
     death = get_death(soup)
-    person["death_cause"] = death["cause"]
+    if death["cause"]:
+        person["death_cause"] = death["cause"]
+    else:
+        person["death_cause"] = None
     
-    day, month, year = death["date"].split()
-    person["death_day"] = int(day)
-    person["death_month"] = get_month_number(month)
-    person["death_year"] = int(year)
+    if death["date"]:
+        day, month, year = death["date"].split()
+        person["death_day"] = int(day)
+        person["death_month"] = get_month_number(month)
+        person["death_year"] = int(year)
+    else: 
+        person["death_day"] = None
+        person["death_month"] = None
+        person["death_year"] = None
+    
+    person["occupation"] = get_occupation(soup)
     
     return person
 
@@ -191,9 +225,9 @@ def init():
     #     people.append(person)
         
     # write_json("people_sample", people)
-    spinoza_url = "https://www.astro-seek.com/birth-chart/baruch-spinoza-horoscope"
+    spinoza_url = "https://www.astro-seek.com/birth-chart/dorothy-adams-horoscope"
     spinoza = get_personal_info(spinoza_url)
-    print(spinoza)
+    write_json("spinoza", spinoza)
 
 init()
     
