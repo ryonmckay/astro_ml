@@ -133,7 +133,8 @@ def get_planet_details(soup, planet, birth_time):
                     img = sign[0]
                 
                     if planet == 'moon'and birth_time is None:
-                        img = sign[1]
+                        if (len(sign) > 1):
+                            img = sign[1]
                     p["sign"] = img.get('alt')
                 else:
                     p["sign"] = None
@@ -256,8 +257,8 @@ def get_personal_info(url):
     return person
 
 def init():
-
-    for i in range(4, 47):
+# crashed here in 12: https://www.astro-seek.com/birth-chart/johnnie-ray-horoscope
+    for i in range(13, 47):
         ppl = []
         data = load_data(i*10 - 10)
         for idx, url in enumerate(data):
