@@ -20,7 +20,7 @@ def load_data():
 
 def get_occupation(soup):
     strong = soup.find('strong', string='Occupation')
-    occ = ''
+    occ = None
     
     if strong:
         div = strong.parent.find_next_sibling("div")
@@ -97,12 +97,21 @@ def get_houses(soup):
     
     return houses
 
+def get_gender(soup):
+    div = soup.find('strong', string='Gender')
+    g = None
+    
+    if (div):
+        div = div.parent
+        next_div = div.find_next_sibling("div")
+        g = next_div.get_text().replace('\n', '')
+        
+    return g
+        
+
 def get_planet_details(soup, planet, birth_time):
     div = soup.find('span', string=planet.title())
     p = {}
-    # print(planet)
-    # if planet == 'moon':
-    #     return p
     
     if (div):
         div = div.parent
@@ -134,9 +143,11 @@ def get_planet_details(soup, planet, birth_time):
                 
             if idx == 2:
                 p["house"] = d.get_text()
+                if len(p["house"]) is 0:
+                    p["house"] = None
                 
                 if planet == 'moon'and birth_time is None:
-                    p["house"] = ""
+                    p["house"] = None
                 
             if idx == 3:
                 if d.get_text() == 'R':
@@ -148,7 +159,6 @@ def get_planets(soup, birth_time):
     planets = {}
     
     for planet in PLANETS_LIST:
-        print(birth_time)
         planets[planet] = get_planet_details(soup, planet, birth_time)
     
     return planets
@@ -194,6 +204,9 @@ def get_personal_info(url):
     houses = get_houses(soup)
     for house in houses.items():
         house_name, house_props = house
+        person[f"{house_name}_sign"] = None
+        person[f"{house_name}_pos_degrees"] = None
+        person[f"{house_name}_pos_minutes"] = None
         for prop in house_props.items():
             prop_key, prop_val = prop
             person[f"{house_name}_{prop_key}"] = prop_val
@@ -216,6 +229,7 @@ def get_personal_info(url):
         person["death_year"] = None
     
     person["occupation"] = get_occupation(soup)
+    person["gender"] = get_gender(soup)
     
     return person
 
@@ -228,7 +242,7 @@ def init():
     #     people.append(person)
         
     # write_json("people_sample", people)
-    spinoza_url = "https://www.astro-seek.com/birth-chart/dorothy-adams-horoscope"
+    spinoza_url = "https://www.astro-seek.com/birth-chart/rachel-weisz-horoscope"
     spinoza = get_personal_info(spinoza_url)
     write_json("spinoza", spinoza)
 
