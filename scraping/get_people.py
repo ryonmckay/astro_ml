@@ -146,8 +146,9 @@ def get_planet_details(soup, planet, birth_time):
                 p["pos_minutes"] = spans[1].get_text().replace('’', '')
                 
                 if planet == 'moon'and birth_time is None:
-                    p["pos_degrees"] = spans[2].get_text()
-                    p["pos_minutes"] = spans[3].get_text().replace('’', '')
+                    if (len(spans) > 1):
+                        p["pos_degrees"] = spans[2].get_text()
+                        p["pos_minutes"] = spans[3].get_text().replace('’', '')
                 
             if idx == 2:
                 p["house"] = d.get_text()
