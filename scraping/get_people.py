@@ -97,7 +97,7 @@ def get_houses(soup):
     
     return houses
 
-def get_planet_details(soup, planet):
+def get_planet_details(soup, planet, birth_time):
     div = soup.find('span', string=planet.title())
     p = {}
     # print(planet)
@@ -106,7 +106,6 @@ def get_planet_details(soup, planet):
     
     if (div):
         div = div.parent
-        
         next_divs = div.find_next_siblings('div', limit=4)
         
         for idx, d in enumerate(next_divs):
@@ -117,7 +116,7 @@ def get_planet_details(soup, planet):
                 if sign:
                     img = sign[0]
                 
-                    if planet == 'moon':
+                    if planet == 'moon'and birth_time is None:
                         img = sign[1]
                     p["sign"] = img.get('alt')
                 else:
@@ -129,12 +128,15 @@ def get_planet_details(soup, planet):
                 p["pos_degrees"] = int(spans[0].get_text())
                 p["pos_minutes"] = int(spans[1].get_text().replace('’', ''))
                 
-                if planet == 'moon':
+                if planet == 'moon'and birth_time is None:
                     p["pos_degrees"] = int(spans[2].get_text())
                     p["pos_minutes"] = int(spans[3].get_text().replace('’', ''))
                 
             if idx == 2:
                 p["house"] = d.get_text()
+                
+                if planet == 'moon'and birth_time is None:
+                    p["house"] = ""
                 
             if idx == 3:
                 if d.get_text() == 'R':
@@ -142,11 +144,12 @@ def get_planet_details(soup, planet):
                     
     return p
 
-def get_planets(soup):
+def get_planets(soup, birth_time):
     planets = {}
     
     for planet in PLANETS_LIST:
-        planets[planet] = get_planet_details(soup, planet)
+        print(birth_time)
+        planets[planet] = get_planet_details(soup, planet, birth_time)
     
     return planets
 
@@ -180,7 +183,7 @@ def get_personal_info(url):
     person["birth_time"] = time
     
     # get planets and their props
-    planets = get_planets(soup)
+    planets = get_planets(soup=soup, birth_time=time)
     for planet in planets.items():
         planet_name, planet_props = planet
         for prop in planet_props.items():
