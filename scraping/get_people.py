@@ -3,13 +3,14 @@ import os
 import requests
 import re
 from bs4 import BeautifulSoup
-from utils import write_json
+from utils import write_json, get_month_number
 
 current_dir = os.path.abspath(os.curdir)
 dir_path = dir_path = os.path.abspath(os.path.join(current_dir, os.pardir)) 
 links_path = os.path.join(dir_path, f"data/people_page_1.json")
 
 PLANETS_LIST = ['mercury', 'venus', 'mars', 'sun', 'moon', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto']
+HOUSES_LIST = ['AC', '2', '3', 'IC', '5', '6', 'DC', '8', '9', 'MC', '11', '12']
 
 def load_data():
     urls = []
@@ -52,6 +53,39 @@ def get_name(soup):
     new_txt = new_txt.replace('- Birth Chart' ,'')
     return new_txt
 
+def get_house_details(soup, house):
+    div = soup.find('a', string=house)
+    h = {}
+    
+    if (div):
+        div = div.parent
+        next_divs = div.find_next_siblings('div', limit=2)
+        
+        for idx, d in enumerate(next_divs):
+            if idx == 0:
+                # its sign
+                sign = d.find('img')
+                if sign:
+                    h["sign"] = sign.get('alt')
+                else:
+                    h["sign"] = None
+                    
+            if idx == 1:
+                spans = d.find_all('span')
+                
+                h["pos_degrees"] = int(spans[0].get_text())
+                h["pos_minutes"] = int(spans[1].get_text().replace('’', ''))
+                    
+    return h
+
+def get_houses(soup):
+    houses = {}
+    
+    for house in HOUSES_LIST:
+        houses[f"house_{house}"] = get_house_details(soup, house)
+    
+    return houses
+
 def get_planet_details(soup, planet):
     div = soup.find('span', string=planet.title())
     p = {}
@@ -72,8 +106,8 @@ def get_planet_details(soup, planet):
             if idx == 1:
                 spans = d.find_all('span')
                 
-                p["pos_degrees"] = spans[0].get_text()
-                p["pos_minutes"] = spans[1].get_text().replace('’', '')
+                p["pos_degrees"] = int(spans[0].get_text())
+                p["pos_minutes"] = int(spans[1].get_text().replace('’', ''))
                 
             if idx == 2:
                 p["house"] = d.get_text()
@@ -116,26 +150,35 @@ def get_personal_info(url):
 
     day, month, year, time = get_birth_date_and_time(soup)
     
-    person["birth_day"] = day
-    person["birth_month"] = month
-    person["birth_year"] = year
+    person["birth_day"] = int(day)
+    person["birth_month"] = get_month_number(month)
+    person["birth_year"] = int(year)
     person["birth_time"] = time
     
+    # get planets and their props
     planets = get_planets(soup)
-
     for planet in planets.items():
         planet_name, planet_props = planet
         for prop in planet_props.items():
             prop_key, prop_val = prop
             person[f"{planet_name}_{prop_key}"] = prop_val
-        
-    #     # for item in planet.items():
-        #     key, val = item
-        #     person[f"{planet}_{key}"] = val
     
+    # houses
+    houses = get_houses(soup)
+    for house in houses.items():
+        house_name, house_props = house
+        for prop in house_props.items():
+            prop_key, prop_val = prop
+            person[f"{house_name}_{prop_key}"] = prop_val
+            
+    # death date and cause
     death = get_death(soup)
     person["death_cause"] = death["cause"]
-    person["death_date"] = death["date"]
+    
+    day, month, year = death["date"].split()
+    person["death_day"] = int(day)
+    person["death_month"] = get_month_number(month)
+    person["death_year"] = int(year)
     
     return person
 
