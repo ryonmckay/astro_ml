@@ -3,7 +3,7 @@ import os
 import requests
 import re
 from bs4 import BeautifulSoup
-from utils import write_json, get_month_number
+from utils import write_json, write_json_subdir, get_month_number
 
 current_dir = os.path.abspath(os.curdir)
 dir_path = dir_path = os.path.abspath(os.path.join(current_dir, os.pardir)) 
@@ -12,10 +12,17 @@ links_path = os.path.join(dir_path, f"data/people_page_1.json")
 PLANETS_LIST = ['mercury', 'venus', 'mars', 'sun', 'moon', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto']
 HOUSES_LIST = ['AC', '2', '3', 'IC', '5', '6', 'DC', '8', '9', 'MC', '11', '12']
 
-def load_data():
+def get_link_path(num):
+    return os.path.join(dir_path, f"data/people_page_{num}.json")
+
+def load_data(start_idx):
     urls = []
-    with open(links_path, 'r') as file:
-        urls = json.load(file)
+    
+    for i in range(start_idx, start_idx + 10):
+        link_path = get_link_path(i)
+        with open(link_path, 'r') as file:
+            urls.extend(json.load(file))
+            
     return urls
 
 def get_occupation(soup):
@@ -84,8 +91,8 @@ def get_house_details(soup, house):
             if idx == 1:
                 spans = d.find_all('span')
                 
-                h["pos_degrees"] = int(spans[0].get_text())
-                h["pos_minutes"] = int(spans[1].get_text().replace('’', ''))
+                h["pos_degrees"] = spans[0].get_text()
+                h["pos_minutes"] = spans[1].get_text().replace('’', '')
                     
     return h
 
@@ -134,16 +141,16 @@ def get_planet_details(soup, planet, birth_time):
             if idx == 1:
                 spans = d.find_all('span')
                 
-                p["pos_degrees"] = int(spans[0].get_text())
-                p["pos_minutes"] = int(spans[1].get_text().replace('’', ''))
+                p["pos_degrees"] = spans[0].get_text()
+                p["pos_minutes"] = spans[1].get_text().replace('’', '')
                 
                 if planet == 'moon'and birth_time is None:
-                    p["pos_degrees"] = int(spans[2].get_text())
-                    p["pos_minutes"] = int(spans[3].get_text().replace('’', ''))
+                    p["pos_degrees"] = spans[2].get_text()
+                    p["pos_minutes"] = spans[3].get_text().replace('’', '')
                 
             if idx == 2:
                 p["house"] = d.get_text()
-                if len(p["house"]) is 0:
+                if p["house"] and len(p["house"]) == 0:
                     p["house"] = None
                 
                 if planet == 'moon'and birth_time is None:
@@ -173,12 +180,17 @@ def get_death(soup):
         
         for idx, d in enumerate(next_divs):
             lnk = d.find('a')
-            death["date"] = lnk.get_text()
-            death["cause"] = d.find('span').find('a').get_text()
+            
+            if (lnk):
+                death["date"] = lnk.get_text()
+                
+                if (d.find('span') and d.find('span').find('a')):
+                    death["cause"] = d.find('span').find('a').get_text()
 
     return death
 
 def get_personal_info(url):
+    print(url)
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
     
@@ -187,9 +199,9 @@ def get_personal_info(url):
 
     day, month, year, time = get_birth_date_and_time(soup)
     
-    person["birth_day"] = int(day)
+    person["birth_day"] = day
     person["birth_month"] = get_month_number(month)
-    person["birth_year"] = int(year)
+    person["birth_year"] = year
     person["birth_time"] = time
     
     # get planets and their props
@@ -218,11 +230,21 @@ def get_personal_info(url):
     else:
         person["death_cause"] = None
     
+    person["death_day"] = None
+    person["death_month"] = None
+    person["death_year"] = None
+        
     if death["date"]:
-        day, month, year = death["date"].split()
-        person["death_day"] = int(day)
-        person["death_month"] = get_month_number(month)
-        person["death_year"] = int(year)
+        d = death["date"].split()
+        if (len(d) >= 1):
+            person["death_day"] = d[0]
+        if (len(d) >= 2):
+            person["death_day"] = get_month_number(d[1])
+        if (len(d) >= 3):
+            person["death_year"] = d[2]
+            
+        if (len(d) == 1):
+            person["death_year"] = d[0]
     else: 
         person["death_day"] = None
         person["death_month"] = None
@@ -234,17 +256,25 @@ def get_personal_info(url):
     return person
 
 def init():
-    # data = load_data()
+
+    for i in range(4, 47):
+        ppl = []
+        data = load_data(i*10 - 10)
+        for idx, url in enumerate(data):
+            if idx%10 == 0:
+                print('index', idx)
+                
+            person = get_personal_info(url)
+            ppl.append(person)
+            
+            if idx%100 == 0:
+                write_json_subdir(f"people_{i}0", "people", ppl)
+            
+        write_json_subdir(f"people_{i}0", "people", ppl)
     
-    # people = []
-    # for page in data[0:10]:
-    #     person = get_personal_info(page)
-    #     people.append(person)
-        
-    # write_json("people_sample", people)
-    spinoza_url = "https://www.astro-seek.com/birth-chart/rachel-weisz-horoscope"
-    spinoza = get_personal_info(spinoza_url)
-    write_json("spinoza", spinoza)
+    # spinoza_url = "https://www.astro-seek.com/birth-chart/rachel-weisz-horoscope"
+    # spinoza = get_personal_info(spinoza_url)
+    # write_json("spinoza", spinoza)
 
 init()
     
