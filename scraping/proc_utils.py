@@ -16,6 +16,8 @@ def preprocess_data(df):
     df.dropna(subset=['birth_time'], inplace=True)
     df.dropna(subset=['neptune_house'], inplace=True)
     
+    convert_to_int(df, 'birth_year')
+    
     for planet in PLANETS_LIST:
         convert_to_int(df, f"{planet}_house")
         convert_to_int(df, f"{planet}_pos_degrees")
