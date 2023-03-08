@@ -258,8 +258,9 @@ def get_personal_info(url):
     return person
 
 def init():
+# block in 19, 23, 29 around sarimah
 # crashed here in 12: https://www.astro-seek.com/birth-chart/johnnie-ray-horoscope
-    for i in range(13, 47):
+    for i in range(40, 47):
         ppl = []
         data = load_data(i*10 - 10)
         for idx, url in enumerate(data):
