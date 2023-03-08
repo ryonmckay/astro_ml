@@ -41,6 +41,26 @@ def get_sign_pos(series):
 
 def add_absolute_positions(df):
     for planet in PLANETS_LIST:
-        df[f"{planet}_absolute_pos"] = get_sign_pos(df[f"{planet}_sign"])*30 + df[f"{planet}_pos_degrees"]
+        df[f"{planet}_absolute_pos"] = get_sign_pos(df[f"{planet}_sign"])*30 + df[f"{planet}_pos_degrees"] + round(df[f"{planet}_pos_minutes"]/60, 2)
     
     return df
+
+def add_aspects(df):
+    aspects = [0, 60, 90, 120, 180]
+    # take each planet and then list the other planets and look for degrees?
+    # 120.43	248.67
+    # we want to know if the absolute difference between them divided
+    for planet in PLANETS_LIST:
+        for other_planet in PLANETS_LIST:
+            if (planet !== other_planet):
+                angle = abs(df[f"{planet}_absolute_pos"] - df[f"{other_planet}_absolute_pos"])
+                
+                df[f"{planet}_{other_planet}"] = 'no'
+                
+                for aspect in aspects:
+                    if abs(angle - aspect) <= 5:
+                        df[f"{planet}_{other_planet}"] = 'yes'
+                        
+    return df
+            
+    

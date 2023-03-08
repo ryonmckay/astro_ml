@@ -82,7 +82,7 @@ def add_aspects(df):
             
             for aspect in ASPECTS:
                 # apply a lambda function to the 'angle' column to check if the absolute difference between the angle and the aspect is <= 5
-                df[f"{planet}_{other_planet}_{aspect["name"]}"] = df[f"{planet}_{other_planet}_angle"].apply(lambda x: abs(x - aspect['deg']) <= 5)
+                df[f"{planet}_{other_planet}_{aspect['name']}"] = df[f"{planet}_{other_planet}_angle"].apply(lambda x: abs(x - aspect['deg']) <= 5)
                  
     return df
             
