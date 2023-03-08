@@ -2,6 +2,7 @@ import pandas as pd
 
 PLANETS_LIST = ['neptune', 'pluto']
 HOUSES_LIST = ['AC', '2', '3', 'IC', '5', '6', 'DC', '8', '9', 'MC', '11', '12']
+SIGNS_LIST = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces']
 
 def convert_to_int(df, series_id):
     if df[series_id].dtype == int:
@@ -18,6 +19,10 @@ def preprocess_data(df):
     
     convert_to_int(df, 'birth_year')
     
+    cols_to_replace = ['uranus_retrograde', 'jupiter_retrograde', 'pluto_retrograde', 'mercury_retrograde', 'saturn_retrograde', 'venus_retrograde', 'mars_retrograde']
+    df[cols_to_replace] = df[cols_to_replace].fillna(False)
+
+    
     for planet in PLANETS_LIST:
         convert_to_int(df, f"{planet}_house")
         convert_to_int(df, f"{planet}_pos_degrees")
@@ -28,3 +33,15 @@ def preprocess_data(df):
         convert_to_int(df, f"house_{house}_pos_minutes")
 
     return df
+
+def get_sign_pos(sign):
+    return SIGNS_LIST.index(sign) + 1
+
+# def add_absolute_positions(df):
+#     df[f"{planet}_absolute_pos"]
+    
+#     for planet in PLANETS_LIST:
+#         convert_to_int(df, f"{planet}_house")
+#         convert_to_int(df, f"{planet}_pos_degrees")
+#         convert_to_int(df, f"{planet}_pos_minutes")
+    
