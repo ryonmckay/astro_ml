@@ -1,0 +1,138 @@
+1. STRING (OBJECT) COLUMN LIST
+- neptune_retrograde and pluto_retrograde will be fixed to binary int column
+  like the rest of the plantet retrogrades
+- we should now only have string objects left and
+  no mixed type per column anymore woo hoooo
+- birth_time still to be decided if left string, datetime object etc.
+
+['name',
+ 'birth_time', -- alternative datetime object
+ 'mercury_sign',
+ 'venus_sign',
+ 'mars_sign',
+ 'sun_sign',
+ 'moon_sign',
+ 'jupiter_sign',
+ 'saturn_sign',
+ 'uranus_sign',
+ 'neptune_sign',
+ 'neptune_retrograde', -- tbc
+ 'pluto_sign',
+ 'house_AC_sign',
+ 'house_2_sign',
+ 'house_3_sign',
+ 'house_IC_sign',
+ 'house_5_sign',
+ 'house_6_sign',
+ 'house_DC_sign',
+ 'house_8_sign',
+ 'house_9_sign',
+ 'house_MC_sign',
+ 'house_11_sign',
+ 'house_12_sign',
+ 'death_cause',
+ 'occupation',
+ 'gender',
+ 'pluto_retrograde'] -- tbc
+
+
+2. FLOAT64 COLUMN LIST
+- same as above, last 4 items will be fixed
+
+['mercury_pos_minutes',
+ 'mercury_retrograde',
+ 'venus_pos_minutes',
+ 'mars_pos_minutes',
+ 'sun_pos_minutes',
+ 'moon_pos_minutes',
+ 'jupiter_pos_minutes',
+ 'saturn_pos_minutes',
+ 'uranus_pos_minutes',
+ 'neptune_pos_minutes',
+ 'pluto_pos_minutes',
+ 'house_AC_pos_minutes',
+ 'house_2_pos_minutes',
+ 'house_3_pos_minutes',
+ 'house_IC_pos_minutes',
+ 'house_5_pos_minutes',
+ 'house_6_pos_minutes',
+ 'house_DC_pos_minutes',
+ 'house_8_pos_minutes',
+ 'house_9_pos_minutes',
+ 'house_MC_pos_minutes',
+ 'house_11_pos_minutes',
+ 'house_12_pos_minutes',
+ 'jupiter_retrograde',    -- yes
+ 'saturn_retrograde',     --
+ 'venus_retrograde',      --
+ 'mars_retrograde']       --
+
+
+3. INT64 COLUMNS
+- I think and hope these are actually all final
+  - see at the end how all (planet_name)_retrograde should appear
+
+['birth_day',
+ 'birth_month',
+ 'birth_year',
+ 'mercury_pos_degrees',
+ 'mercury_house',
+ 'venus_pos_degrees',
+ 'venus_house',
+ 'mars_pos_degrees',
+ 'mars_house',
+ 'sun_pos_degrees',
+ 'sun_house',
+ 'moon_pos_degrees',
+ 'moon_house',
+ 'jupiter_pos_degrees',
+ 'jupiter_house',
+ 'saturn_pos_degrees',
+ 'saturn_house',
+ 'uranus_pos_degrees',
+ 'uranus_house',
+ 'neptune_pos_degrees',
+ 'neptune_house',
+ 'pluto_pos_degrees',
+ 'pluto_house',
+ 'house_AC_pos_degrees',
+ 'house_2_pos_degrees',
+ 'house_3_pos_degrees',
+ 'house_IC_pos_degrees',
+ 'house_5_pos_degrees',
+ 'house_6_pos_degrees',
+ 'house_DC_pos_degrees',
+ 'house_8_pos_degrees',
+ 'house_9_pos_degrees',
+ 'house_MC_pos_degrees',
+ 'house_11_pos_degrees',
+ 'house_12_pos_degrees',
+ 'uranus_retrograde']
+
+
+e.g. 'uranus_retrograde' output
+
+0       0
+1       1
+3       0
+4       0
+6       0
+       ..
+1941    0
+1943    0
+1957    0
+1969    0
+1989    0
+Name: uranus_retrograde, Length: 20359, dtype: int64
+
+
+.value_counts()
+
+0    12092
+1     8267
+Name: uranus_retrograde, dtype: int64
+
+So yeah then we would have all of the planet retrograde binary.
+
+Let me know what you think, if anything should be in a different type
+and most importanly what column to droooooooooop. THE EMOJI
