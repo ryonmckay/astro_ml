@@ -32,6 +32,9 @@ def convert_to_int(df, series_id):
     else:
         df[series_id] = df[series_id].astype(int)
         
+def clean_unnecessary_columnd(df):
+    
+        
 # define the preprocessing pipeline
 def preprocess_data(df):
     # drop rows with NaN in birth_time column
@@ -43,7 +46,6 @@ def preprocess_data(df):
     
     cols_to_replace = ['uranus_retrograde', 'jupiter_retrograde', 'pluto_retrograde', 'mercury_retrograde', 'saturn_retrograde', 'venus_retrograde', 'mars_retrograde']
     df[cols_to_replace] = df[cols_to_replace].fillna(False)
-
     
     for planet in PLANETS_LIST:
         convert_to_int(df, f"{planet}_house")
@@ -71,11 +73,9 @@ def add_aspects(df):
     aspects = [0, 60, 90, 120, 180]
     
     # take each planet and then list the other planets and look for degrees?
-    # 120.43	248.67
+    # 120.43 248.67
     # we want to know if the absolute difference between them divided
     for i, planet in enumerate(PLANETS_LIST):
-        print(planet)
-
         for j in range(i+1, len(PLANETS_LIST)):
             other_planet = PLANETS_LIST[j]
             df[f"{planet}_{other_planet}_angle"] = abs(df[f"{planet}_absolute_pos"] - df[f"{other_planet}_absolute_pos"])
@@ -86,4 +86,8 @@ def add_aspects(df):
                  
     return df
             
-    
+
+def make_features(df):
+    # aspects
+    df = add_absolute_positions(df)
+    df = add_aspects(df)
