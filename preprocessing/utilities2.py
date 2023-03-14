@@ -65,7 +65,7 @@ def add_aspects(df):
     # 120.43	248.67
     # we want to know if the absolute difference between them divided
     MY_PLANETS_LIST = ['mercury', 'venus', 'house_AC', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'moon', 'pluto', 'sun']
-    for planet in MY_PLANETS_LIST:
+    
     for i, planet in enumerate(MY_PLANETS_LIST):
         print(planet)
 
@@ -110,9 +110,10 @@ def preprocess_data(df):
     df.dropna(subset=['sun_sign'], inplace=True)
     df.dropna(subset=['birth_time'], inplace=True)
     df.dropna(subset=['neptune_house'], inplace=True)
-    
-    convert_to_int(df, 'birth_year')
-    
+    df = df.dropna(subset=['death_year'])
+    df = df.dropna(subset=['birth_year'])
+    # convert_to_int(df, 'birth_year')
+    # convert_to_int(df, 'death_year')
     cols_to_replace = ['uranus_retrograde', 'jupiter_retrograde', "death_cause", "death_day", "death_month", 'pluto_retrograde', 'mercury_retrograde', 'saturn_retrograde', 'venus_retrograde', 'mars_retrograde']
     df[cols_to_replace] = df[cols_to_replace].fillna(False)
     df["neptune_retrograde"]=df["neptune_retrograde"].fillna(0)
@@ -126,6 +127,8 @@ def preprocess_data(df):
         convert_to_int(df, f"house_{house}_pos_degrees")
         convert_to_int(df, f"house_{house}_pos_minutes")
         
+        
+        
     df = add_absolute_positions(df)
     df = add_aspects(df)
     df = clean_angles(df)
@@ -138,7 +141,7 @@ def preprocess_data(df):
     
     df = remove_columns(df)
     
-    df = df.drop(columns=["gender", "occupation", "birth_month", "birth_day", "birth_year", "birth_time", "death_year"])
+    df = df.drop(columns=["gender", "occupation", "birth_month", "birth_day", "birth_time"])
 
 
     
